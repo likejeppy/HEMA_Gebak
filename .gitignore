@@ -1,0 +1,4 @@
+# Ignore: 
+app.log
+config.json
+.idea
