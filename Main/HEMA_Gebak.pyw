@@ -84,8 +84,8 @@ import shutil
 saved_articles = {}
 order_articles = {}  # New dictionary to store articles added to the order
 total_value = 0
-update_url = "https://raw.githubusercontent.com/likejeppy/HEMA_Pakbon/refs/heads/main/Editor/HEMA_Pakbon_Editor.pyw"
-latest_version_url = "https://raw.githubusercontent.com/likejeppy/HEMA_Pakbon/refs/heads/main/Editor/latest.json"
+update_url = "https://raw.githubusercontent.com/likejeppy/HEMA_Gebak/refs/heads/main/Main/HEMA_Gebak.pyw"
+latest_version_url = "https://raw.githubusercontent.com/likejeppy/HEMA_Gebak/refs/heads/main/Main/version.json"
 
 # Get the directory of the current script
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -137,7 +137,7 @@ def save_config(config):
 
 def set_current_version():
     logging.info("Performing function 'set_current_version'.")
-    latest_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "latest.json")
+    latest_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "version.json")
 
     # Check if the file exists
     if os.path.exists(latest_file):
@@ -190,7 +190,7 @@ def set_current_version():
 def fetch_online_version():
     logging.info("Performing function 'fetch_online_version'.")
     try:
-        # URL to the latest.json file on GitHub
+        # URL to the version.json file on GitHub
         online_url = latest_version_url
         response = requests.get(online_url)
 
@@ -694,7 +694,7 @@ def make_order_window():
 
 # Main Window for choosing actions
 # Create the main window
-logging.info("Creating main window")
+logging.info("Creating main window.")
 root = tk.Tk()
 root.title("HEMA Gebak - jeffvh")
 root.resizable(False, False)
@@ -734,5 +734,7 @@ def on_close():
 
 root.protocol("WM_DELETE_WINDOW", on_close)
 
+set_current_version()
+check_for_update()
 # Run the main window
 root.mainloop()
