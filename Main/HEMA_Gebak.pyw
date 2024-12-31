@@ -1,14 +1,15 @@
-import tkinter as tk
-import tkinter.ttk as ttk
-from tkinter import *
-from tkinter import messagebox, Toplevel
-from PIL import Image, ImageTk
-from barcode import Code128
-from barcode.writer import ImageWriter
-from io import BytesIO
-import json
+current_version = "0.0.1"
 import logging
 import os
+import sys
+import subprocess
+def exception_handler(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+    logging.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+sys.excepthook = exception_handler
 
 # Configure logging
 logging.basicConfig(
@@ -21,10 +22,70 @@ logging.basicConfig(
 logging.info("*******************************************************************************************************")
 logging.info("Loading application.")
 
+def install_requirements():
+    logging.info("Performing function 'install_requirements'.")
+
+    # Check if requirements.txt exists or is empty
+    if not os.path.exists("requirements.txt") or os.stat("requirements.txt").st_size == 0:
+        logging.info("requirements.txt is missing or empty, continuing without installing additional libraries.")
+        return  # Continue the program without exiting the program, but will exit the function
+
+    # Read the requirements.txt file
+    with open("requirements.txt", "r") as f:
+        libraries = f.readlines()
+
+    raised_error = False  # Initialize the raised_error flag outside the loop
+
+    # Temporary list to hold libraries that are still needed (those that failed installation)
+    remaining_libraries = []
+
+    # Install each library from the requirements.txt file
+    for lib in libraries:
+        lib = lib.strip()  # Remove leading/trailing whitespace or newlines
+        if lib:  # Only attempt to install if the library name is not empty
+            logging.info(f"Attempting to install: {lib}")
+            try:
+                subprocess.check_call([sys.executable, "-m", "pip", "install", lib])
+                logging.info(f"Successfully installed: {lib}")
+            except Exception as e:
+                raised_error = True
+                logging.error(f"Failed to install {lib}: {e}")
+                # If the installation fails, keep the library for re-trying later
+                remaining_libraries.append(lib)
+
+    # If any installation failed, overwrite the requirements.txt with remaining libraries
+    if raised_error:
+        with open("requirements.txt", "w") as f:
+            for lib in remaining_libraries:
+                f.write(lib + "\n")
+        logging.info("Updated requirements.txt with remaining libraries.")
+        messagebox.showerror("Failed to install required libraries.\nSee log for details.")
+        sys.exit(1)  # Exit the program if any installation failed
+    else:
+        # If all libraries were successfully installed, clear the requirements.txt
+        open("requirements.txt", "w").close()  # Empty the file as all libraries are installed
+        logging.info("All libraries installed successfully. requirements.txt is now empty.")
+
+install_requirements()
+
+import tkinter as tk
+import tkinter.ttk as ttk
+from tkinter import *
+from tkinter import messagebox, Toplevel
+from PIL import Image, ImageTk
+from barcode.codex import Code128
+from barcode.writer import ImageWriter
+from io import BytesIO
+import json
+import requests
+import shutil
+
 # Dictionary to store article numbers, names, and values
 saved_articles = {}
 order_articles = {}  # New dictionary to store articles added to the order
 total_value = 0
+update_url = "https://raw.githubusercontent.com/likejeppy/HEMA_Pakbon/refs/heads/main/Editor/HEMA_Pakbon_Editor.pyw"
+latest_version_url = "https://raw.githubusercontent.com/likejeppy/HEMA_Pakbon/refs/heads/main/Editor/latest.json"
 
 # Get the directory of the current script
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -60,7 +121,6 @@ def load_config():
         logging.warning("Config file does not exist, returning default configuration.")
         return {}
 
-
 def save_config(config):
     logging.info("Performing function 'save_config'.")
     try:
@@ -74,6 +134,144 @@ def save_config(config):
             logging.info(f"Config file saved successfully at: {config_file}")
     except Exception as e:
         logging.error(f"Error saving config file at {config_file}: {e}")
+
+def set_current_version():
+    logging.info("Performing function 'set_current_version'.")
+    latest_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "latest.json")
+
+    # Check if the file exists
+    if os.path.exists(latest_file):
+        logging.info("Latest version config file found, loading it.")
+        try:
+            # Load the content from the existing file
+            with open(latest_file, "r") as f:
+                file_content = f.read().strip()  # Read and strip any whitespace
+
+                # If the content is empty, update with default values
+                if not file_content:
+                    logging.warning(f"{latest_file} is empty, updating it with default values.")
+                    default_config = {"version": current_version}
+                    with open(latest_file, "w") as f_write:
+                        json.dump(default_config, f_write, indent=4)
+                    logging.info(f"Updated {latest_file} with default values.")
+                    return default_config
+
+                # Try loading the JSON content
+                config = json.loads(file_content)
+                logging.info("Successfully loaded the latest version file.")
+
+                # Update the version in the loaded config
+                config["version"] = current_version
+
+                # Save the updated config back to the file
+                with open(latest_file, "w") as f_write:
+                    json.dump(config, f_write, indent=4)
+                logging.info(f"Updated {latest_file} with current version {current_version}.")
+                return config
+
+        except json.JSONDecodeError as e:
+            logging.error(f"Error reading JSON from {latest_file}: {e}")
+            # If there's an error parsing the file, return the default config
+            default_config = {"version": current_version}
+            with open(latest_file, "w") as f_write:
+                json.dump(default_config, f_write, indent=4)
+            logging.info(f"Rewritten {latest_file} with default values due to error.")
+            return default_config
+
+    else:
+        logging.warning(f"{latest_file} does not exist, creating it with default values.")
+        # If the file doesn't exist, create it with the default configuration
+        default_config = {"version": current_version}
+        with open(latest_file, "w") as f_write:
+            json.dump(default_config, f_write, indent=4)
+        logging.info(f"Created {latest_file} with default values.")
+        return default_config
+
+def fetch_online_version():
+    logging.info("Performing function 'fetch_online_version'.")
+    try:
+        # URL to the latest.json file on GitHub
+        online_url = latest_version_url
+        response = requests.get(online_url)
+
+        # Check if the response is successful
+        if response.status_code == 200:
+            # Parse the JSON content
+            online_config = response.json()
+            logging.info(f"Online version info: {online_config}")
+            return online_config
+        else:
+            logging.error(f"Failed to fetch online version info, status code: {response.status_code}")
+            return None
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Error fetching online version info: {e}")
+        return None
+
+# Function to check if an update is needed
+def check_for_update():
+    logging.info("Performing function 'check_for_update'.")
+    try:
+        # Fetch the latest version info from the raw URL
+        response = requests.get(latest_version_url)
+        response.raise_for_status()  # Raise an error for invalid responses
+        latest_info = response.json()
+
+        # Check if the 'version' key is in the response
+        if "version" in latest_info:
+            online_version = latest_info["version"]
+            logging.info(f"Current version: {current_version}, File version: {online_version}")
+
+            # Compare versions (this is a simple string comparison)
+            if online_version > current_version:
+                response = messagebox.askyesno("Update Beschikbaar",
+                                               f"Er is een update beschikbaar.\nHuidige versie: {current_version}, nieuwe versie: {online_version}\nWil je nu updaten?")
+                if response: # response = yes
+                    logging.info("Update available, downloading update.")
+                    download_update()
+                else:
+                    logging.info("Update available, but user declined to update.")
+            else:
+                logging.info("No update required, the current version is up-to-date.")
+        else:
+            logging.warning("Version info not found in the response.")
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Error while checking for updates: {e}")
+
+def download_update():
+    logging.info("Performing function 'download_update'.")
+    try:
+        response = requests.get(update_url)
+
+        if response.status_code == 200:
+            # Save the updated file to a temporary location
+            temp_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "HEMA_Pakbon_Editor_updated.pyw")
+
+            # Write the content to the new file
+            with open(temp_file_path, "wb") as f:
+                f.write(response.content)
+            logging.info("Update downloaded and saved successfully.")
+
+            # Remove the old script and replace it with the updated version
+            logging.info("Removing old script and replacing it with the updated version.")
+
+            old_file_path = os.path.abspath(__file__)  # Get the path of the current running script
+
+            # Remove the old file (if it exists)
+            if os.path.exists(old_file_path):
+                os.remove(old_file_path)
+                logging.info("Old script removed.")
+
+            # Move the new file to replace the old one
+            shutil.move(temp_file_path, old_file_path)
+            logging.info("Updated script is in place.")
+
+            # Use os.execv to relaunch the updated script
+            logging.info("Relaunching the updated version of the script.")
+            os.execv(sys.executable, [sys.executable, old_file_path])  # This will replace the current script with the new one
+        else:
+            logging.error(f"Failed to download update, status code: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Error while downloading update: {e}")
 
 # Save the dictionary to a JSON file
 def save_articles():
@@ -114,7 +312,7 @@ def load_articles():
         logging.debug("Couldn't find existing data, initializing with empty dictionary.")
 
 # Function to populate Listbox with loaded data
-def populate_listbox(listbox):
+def populate_listbox(listbox, total_numbers):
     logging.info("Performing function 'populate_listbox'.")
     # Populate the Listbox with the article names and values (sorted alphabetically, case-insensitive)
     listbox.delete(0, tk.END)  # Clear existing entries in the listbox
@@ -123,6 +321,7 @@ def populate_listbox(listbox):
     for article_name in sorted(saved_articles, key=lambda x: x.strip().lower()):
         article_value = saved_articles[article_name]["value"]
         listbox.insert(tk.END, f"{article_name} - €{article_value}")
+    total_numbers.config(text=f"Aantal taarten: {listbox.index("end")}")
 
 
 def update_listbox(search_term=""):
@@ -205,7 +404,7 @@ def generate_barcode(window, entry_number, entry_name, entry_value, barcode_labe
         messagebox.showerror("Error", f"Failed to generate barcode: {e}")
         logging.error(f"Failed to generate barcode: {e}")
 
-def generate_barcode_from_listbox(event, listbox, barcode_label, value_label):
+def generate_barcode_from_listbox(event, listbox, barcode_label, value_label, current_selection):
     logging.info("Perofrming function 'generate_barcode_from_listbox'.")
     # Get the selected article name from the listbox
     selected_item_index = listbox.curselection()
@@ -218,6 +417,8 @@ def generate_barcode_from_listbox(event, listbox, barcode_label, value_label):
     article_name = listbox.get(selected_item_index).split(' - ')[0]
     article_number = saved_articles[article_name]["number"]
     article_value = saved_articles[article_name]["value"]
+
+    current_selection.config(text=f"{article_name}")
 
     # Generate the barcode
     logging.info(f"Trying to generate barcode for article: {article_name}, with number: {article_number} and value: {article_value}.")
@@ -400,10 +601,8 @@ def add_article_window():
 def make_order_window():
     logging.info("Performing function and creating window 'make_order_window'.")
     order_window = tk.Toplevel(root)
-    order_window.title("Make Order")
+    order_window.title("Zoek Artikelnummer")
     order_window.resizable(False, False)
-    order_window.minsize(200,0)
-    order_window.maxsize(999,999)
 
     order_window.grab_set()
     order_window.lift()
@@ -415,20 +614,20 @@ def make_order_window():
     order_window_position = config.get('order_window_position', (root.winfo_x(), root.winfo_y()))
     order_window.geometry(f"+{order_window_position[0]}+{order_window_position[1]}")
 
-    label_saved = tk.Label(order_window, text="Zoeken:", font=("Helvetica", 11))
-    label_saved.pack(pady=5, padx=5)
+    # Configure the grid layout for the window
+    for i in range(2):  # Assuming two columns
+        order_window.columnconfigure(i, weight=1)
 
-    # Create a frame to hold the search entry and the clear button
-    search_frame = tk.Frame(order_window)
-    search_frame.pack(pady=5)
+    label_saved = tk.Label(order_window, text="Zoeken:", font=("Helvetica", 11))
+    label_saved.grid(row=0, column=0, sticky="w", padx=5, pady=5)
 
     # Search variable and entry
     global search_var
     search_var = tk.StringVar()
     search_var.trace_add("write", on_search)
 
-    search_entry = tk.Entry(search_frame, textvariable=search_var, font=("Helvetica", 14))
-    search_entry.pack(side="left", padx=5)
+    search_entry = tk.Entry(order_window, textvariable=search_var, font=("Helvetica", 14))
+    search_entry.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
 
     # Function to clear the search entry and reset the listbox
     def clear_search():
@@ -437,80 +636,42 @@ def make_order_window():
         update_listbox()  # Reset the listbox to show all items
 
     # Clear button
-    clear_button = tk.Button(search_frame, text="X", command=clear_search, font=("Helvetica", 9, "bold"))
-    clear_button.pack(side="left", padx=5)
+    clear_button = tk.Button(order_window, text="X", command=clear_search, font=("Helvetica", 9, "bold"))
+    clear_button.grid(row=1, column=1, sticky="e", padx=5, pady=5)
+
+    current_selection = tk.Label(order_window, text="", font=("Helvetica", 11))
+    current_selection.grid(row=2, column=0, sticky="nsew", pady=0)
 
     barcode_label = tk.Label(order_window)
-    barcode_label.pack(pady=10, padx=5)
+    barcode_label.grid(row=3, column=0, columnspan=2, sticky="ew", padx=5, pady=0)
 
-    # Listbox for saved articles
+    # Listbox for saved articles with scrollbar
     global saved_listbox
     saved_listbox = tk.Listbox(order_window, width=40, height=10, font=("Helvetica", 12),
                                bg="#f0f0f0", selectmode=tk.SINGLE, bd=1, relief="sunken", activestyle="none")
+    saved_listbox.grid(row=4, column=0, sticky="nsew", padx=5, pady=0)
 
-    # Create a scrollbar for the Listbox
     scrollbar = tk.Scrollbar(order_window, orient="vertical", command=saved_listbox.yview)
+    scrollbar.grid(row=4, column=1, sticky="ns", padx=5, pady=5)
     saved_listbox.config(yscrollcommand=scrollbar.set)
-
-    # Pack scrollbar and listbox
-    scrollbar.pack(side="right", fill="y")
-    saved_listbox.pack(pady=5, padx=5)
-
-    # Hover effect for listbox items
-    def on_listbox_hover(event):
-        index = saved_listbox.nearest(event.y)  # Get the nearest index based on mouse position
-        saved_listbox.itemconfig(index, {'bg': '#d3d3d3'})  # Change background color on hover
-
-    def on_listbox_leave(event):
-        index = saved_listbox.nearest(event.y)
-        saved_listbox.itemconfig(index, {'bg': '#f0f0f0'})  # Reset background color when mouse leaves
-
-    saved_listbox.bind("<Motion>", on_listbox_hover)  # Hover effect when moving the mouse
-    saved_listbox.bind("<Leave>", on_listbox_leave)  # Reset background when mouse leaves
-
-    # Highlight the selected item
-    def highlight_selected(event):
-        selected_index = saved_listbox.curselection()  # Get the index of the selected item
-        for i in range(len(saved_listbox.get(0, tk.END))):
-            if i == selected_index[0]:
-                saved_listbox.itemconfig(i, {'bg': '#87CEEB'})  # Highlight selected item
-            else:
-                saved_listbox.itemconfig(i, {'bg': '#f0f0f0'})  # Reset the background of unselected items
-
-    saved_listbox.bind("<<ListboxSelect>>", highlight_selected)
-
-    # Add tooltips to the listbox items
-    def show_tooltip(event):
-        index = saved_listbox.nearest(event.y)
-        article_name = saved_listbox.get(index).split(" - ")[0]
-        tooltip = ttk.Tooltip(saved_listbox, text=f"Details for {article_name}")
-        tooltip.place(x=event.x, y=event.y)
-
-    saved_listbox.bind("<Motion>", show_tooltip)
 
     # Binding the action to the listbox selection
     saved_listbox.bind("<<ListboxSelect>>",
-                       lambda event: generate_barcode_from_listbox(event, saved_listbox, barcode_label, value_label))
+                       lambda event: generate_barcode_from_listbox(event, saved_listbox, barcode_label, value_label, current_selection))
 
     generate_barcode_directly("15160043", "0", barcode_label)
 
-    # Greyed out are element that are made for adding items to order, is in development.
-    #button_add_to_order = tk.Button(order_window, text="Voeg Toe", state="disabled",
-                                    #command=lambda: add_to_order(saved_listbox, order_listbox, total_value_label))
-    #button_add_to_order.pack(pady=10, padx=5)
-
-    #button_remove_from_order = tk.Button(order_window, text="Verwijder", state="disabled",
-                                         #command=lambda: remove_from_order(order_listbox, total_value_label))
-    #button_remove_from_order.pack(pady=10, padx=5)
+    total_numbers = tk.Label(order_window, text="Aantal taarten: ", font=("Helvetica", 7))
+    total_numbers.grid(row=5, column=0, sticky="w", pady=0)
 
     value_label = tk.Label(order_window, text="Prijs: €0.00", font=("Helvetica", 14), fg="green")
-    value_label.pack(pady=5, padx=5)
+    value_label.grid(row=6, column=0, pady=0)
 
     #total_value_label = tk.Label(order_window, text="Totale waarde: €0.00", font=("Helvetica", 14), fg="green")
     #total_value_label.pack(pady=5, padx=5)
 
     load_articles()
-    populate_listbox(saved_listbox)
+    populate_listbox(saved_listbox, total_numbers)
     update_listbox()
 
     # Listbox for the current order
@@ -575,4 +736,3 @@ root.protocol("WM_DELETE_WINDOW", on_close)
 
 # Run the main window
 root.mainloop()
-    # Populate the listbox with saved articles

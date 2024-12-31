@@ -1,4 +1,4 @@
 # Ignore: 
-app.log
-config.json
+Main/app.log
+Main/config.json
 .idea
