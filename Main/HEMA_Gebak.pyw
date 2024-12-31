@@ -1,4 +1,4 @@
-current_version = "0.0.1"
+current_version = "0.0.2"
 import logging
 import os
 import sys
@@ -69,7 +69,6 @@ def install_requirements():
 install_requirements()
 
 import tkinter as tk
-import tkinter.ttk as ttk
 from tkinter import *
 from tkinter import messagebox, Toplevel
 from PIL import Image, ImageTk
@@ -696,7 +695,7 @@ def make_order_window():
 # Create the main window
 logging.info("Creating main window.")
 root = tk.Tk()
-root.title("HEMA Gebak - jeffvh")
+root.title(f"HEMA Gebak - jeffvh {current_version}")
 root.resizable(False, False)
 config = load_config()
 root.minsize(200, 0)
