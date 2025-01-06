@@ -23,7 +23,7 @@ to_install = []
 # List of your imports
 imports = [
     "sys", "logging", "subprocess", "tkinter", "requests", 
-    "os", "shutil", "json", "re", "webbrowser", "Pillow", "barcode", "io"
+    "os", "shutil", "json", "re", "webbrowser", "Pillow", "barcode", "python-barcode", "io"
 ]
 
 # List of known built-in modules (standard Python libraries)

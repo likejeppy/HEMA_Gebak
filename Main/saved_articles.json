@@ -1,182 +1,194 @@
 {
     "Tompouce": {
-        "number": 6311010,
+        "number": 2006027599990,
         "value": 0.99
     },
     "Luxe Tompouce": {
-        "number": 6310011,
+        "number": 2025503099991,
         "value": 1.59
     },
+    "Karamel Tompouce": {
+        "number": 8720354751909,
+        "value": 1.29
+    },
     "Appeltaartje 1p.": {
-        "number": 6310144,
+        "number": 8720354773031,
         "value": 2.49
     },
     "Appelbol": {
-        "number": 6311890,
+        "number": 8713475847002,
         "value": 2.59
     },
     "Stroopwafelgebakje": {
-        "number": 6310143,
+        "number": 8720354773024,
         "value": 2.59
     },
     "Aardbeien Bavaroisegebakje": {
-        "number": 6310142,
+        "number": 8720354751916,
         "value": 2.59
     },
     "Vanille Slagroomgebakje": {
-        "number": 6310136,
+        "number": 2080063799996,
         "value": 2.59
     },
     "Mokka Gebakje": {
-        "number": 6310134,
+        "number": 2080063399998,
         "value": 2.59
     },
     "Slagroomsoesjes 11st.": {
-        "number": 6311472,
+        "number": 2057076199990,
         "value": 3.99
     },
     "Tomsoesjes 10st.": {
-        "number": 6311478,
+        "number": 2037008499992,
         "value": 3.99
     },
     "Appeltaart 5p.": {
-        "number": 6340061,
+        "number": 2081467499994,
         "value": 4.99
     },
     "Kersenvlaai Half 5p.": {
-        "number": 6350006,
+        "number": 2025506199995,
         "value": 5.29
     },
     "Appelkruimelvlaai Half 5p.": {
-        "number": 6355261,
+        "number": 2070453199994,
         "value": 5.29
     },
     "Appelkruimeltaart Vegan": {
-        "number": 6344720,
+        "number": 2006033799995,
         "value": 5.99
     },
     "Macarons 12st.": {
-        "number": 6311898,
+        "number": 2020166699991,
         "value": 6.79
     },
-    "Vanilla-Slagroomvlaai 10p.": {
-        "number": 6355550,
+    "Vanille Slagroomvlaai 10p.": {
+        "number": 2006036099993,
         "value": 13.99
     },
     "Stoofperenvlaai Half 5p.": {
-        "number": 6350040,
+        "number": 8720354775776,
         "value": 7.29
     },
     "Vanille-Slagroomvlaai Half 5p.": {
-        "number": 6355551,
+        "number": 2070454199993,
         "value": 7.29
     },
-    "Slagroomschnitt Drie Kleuren 6p.": {
-        "number": 6322107,
+    "Drie Kleuren Slagroomschnitt 6p.": {
+        "number": 2055909199995,
         "value": 7.59
     },
     "Mokkaschnitt 6p.": {
-        "number": 6322126,
+        "number": 2079608699990,
         "value": 7.59
     },
     "Slagroomschnitt 6p.": {
-        "number": 6322100,
+        "number": 2084810799994,
         "value": 7.59
     },
     "Aardbeien-Bavaroisevlaai Half 5p.": {
-        "number": 6355561,
+        "number": 207236399992,
         "value": 7.79
     },
     "Chocoladetaart 6p.": {
-        "number": 6344160,
+        "number": 2067286299991,
         "value": 7.99
     },
     "Luxe Karamelschnitt 6p.": {
-        "number": 6320030,
+        "number": 8720354775479,
         "value": 7.99
     },
     "Slagroomrijstevlaai Half 5p.": {
-        "number": 6355641,
+        "number": 2070454299990,
         "value": 8.29
     },
     "Appelkruimelvlaai 10p.": {
-        "number": 6355260,
+        "number": 2006034999998,
         "value": 9.99
     },
     "Kersenvlaai 10p.": {
-        "number": 6350003,
+        "number": 2025504599995,
         "value": 9.99
     },
     "Speculaaskruimelvlaai 10p.": {
-        "number": 6355637,
+        "number": 8713475128439,
         "value": 9.99
     },
     "Cheesecake Citroen Meringue 8p.": {
-        "number": 6340017,
+        "number": 2027690599995,
         "value": 10.99
     },
     "Kale Taart 8p.": {
-        "number": 6340051,
+        "number": 206908899994,
         "value": 11.99
     },
     "Appeltaart 10p.": {
-        "number": 6340053,
+        "number": 2072351999997,
         "value": 11.99
     },
     "Luxe MonChouvlaai 6p.": {
-        "number": 6350031,
+        "number": 2063839999998,
         "value": 11.99
     },
     "Choco Crunchtaart 8p.": {
-        "number": 6340063,
+        "number": 8720354775745,
         "value": 12.59
     },
     "Stoofperenvlaai 10p.": {
-        "number": 6350039,
+        "number": 8720354775769,
         "value": 13.99
     },
     "Slagroomtaart Confetti 8p.": {
-        "number": 6333010,
+        "number": 2006030399990,
         "value": 14.99
     },
     "Red Velvet Taart 8p.": {
-        "number": 6344157,
+        "number": 2021434399995,
         "value": 14.99
     },
     "Aardbeien-Bavaroisevlaai 10p.": {
-        "number": 6355560,
+        "number": 2061130399998,
         "value": 14.99
     },
     "Mokkaslagroomtaart 8p.": {
-        "number": 6333520,
+        "number": 2006031399999,
         "value": 14.99
     },
     "Slagroomtaart Klassiek 8p.": {
-        "number": 6330044,
+        "number": 2039657099998,
         "value": 14.99
     },
     "Chocoladetaart XL Gesneden 10p.": {
-        "number": 6340022,
+        "number": 2032383799996,
         "value": 15.99
     },
     "Luxe Tompouce Vlaai 10p.": {
-        "number": 6350022,
+        "number": 2040833099992,
         "value": 15.99
     },
     "Slagroomrijstevlaai 10p.": {
-        "number": 6355640,
+        "number": 2006041799994,
         "value": 15.99
     },
-    "Schwarzwaldervlaai 10p.": {
-        "number": 6355627,
+    "Luxe Schwarzwaldervlaai 10p.": {
+        "number": 8718161780588,
         "value": 16.99
     },
     "Slagroomtaart XL Confetti 15p.": {
-        "number": 6333680,
+        "number": 2092753199993,
         "value": 21.99
     },
     "Slagroomtaart XL Klassiek 15p.": {
-        "number": 6330050,
+        "number": 2051105399993,
         "value": 21.99
+    },
+    "Hazelnootschuimtaart 6p.": {
+        "number": 2006033999999,
+        "value": 9.29
+    },
+    "Speculaastaart 6p.": {
+        "number": 8720354775752,
+        "value": 5.99
     }
 }

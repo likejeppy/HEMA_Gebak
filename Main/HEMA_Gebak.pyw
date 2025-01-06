@@ -1,4 +1,4 @@
-current_version = "0.0.2"
+current_version = "0.0.3"
 import logging
 import os
 import sys
@@ -735,5 +735,10 @@ root.protocol("WM_DELETE_WINDOW", on_close)
 
 set_current_version()
 check_for_update()
+
+# Show make order window first
+root.withdraw()
+make_order_window()
+
 # Run the main window
 root.mainloop()
